@@ -1,10 +1,14 @@
 package org.wfnar.junit5app;
 
+import org.wfnar.junit5app.exceptios.DineroInsuficienteExceptio;
+
 import java.math.BigDecimal;
 
 public class Cuenta {
     private String persona;
     private BigDecimal saldo;
+
+    private Banco banco;
 
     public Cuenta(String persona, BigDecimal saldo) {
         this.persona = persona;
@@ -12,12 +16,18 @@ public class Cuenta {
     }
 
     public void debito(BigDecimal monto){
-        saldo = saldo.subtract(monto);
+        BigDecimal nuevoSaldo = saldo.subtract(monto);
+        if(nuevoSaldo.compareTo(BigDecimal.ZERO) < 0){
+            throw new DineroInsuficienteExceptio("Dinero Insuficiente");
+        }
+        saldo = nuevoSaldo;
     }
 
     public void credito(BigDecimal monto){
         saldo = saldo.add(monto);
     }
+
+
 
     public String getPersona() {
         return persona;
@@ -33,6 +43,14 @@ public class Cuenta {
 
     public void setSaldo(BigDecimal saldo) {
         this.saldo = saldo;
+    }
+
+    public Banco getBanco() {
+        return banco;
+    }
+
+    public void setBanco(Banco banco) {
+        this.banco = banco;
     }
 
     @Override
