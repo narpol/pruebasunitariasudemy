@@ -1,20 +1,41 @@
 package org.wfnar.junit5app;
 
-import org.junit.jupiter.api.Disabled;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.*;
 import org.wfnar.junit5app.exceptios.DineroInsuficienteExceptio;
 
 import java.math.BigDecimal;
+import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+//@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class CuentaTest {
+    Cuenta cuenta;
+    @BeforeEach
+    void initMetodoTest(){
+        this.cuenta =new Cuenta("Andres", new BigDecimal("1000.12345"));
+        System.out.println("Iniciando Metodo");
+    }
+
+    @AfterEach
+    void tearDown() {
+        System.out.println("Finalizando el metodo de prueba");
+    }
+
+    @BeforeAll
+    static void beforeAll() {
+        System.out.println("Inicializando el test");
+    }
+
+    @AfterAll
+    static void afterAll() {
+        System.out.println("Finalizando el test");
+    }
 
     @Test
     @DisplayName("Probando nombre de la cuenta!!")
     void testNombreCuenta(){
-        Cuenta cuenta = new Cuenta("Andres", new BigDecimal("1000.12345"));
        // cuenta.setPersona("Andres");
         String esperado ="Andres";
         String real = cuenta.getPersona();
@@ -26,7 +47,6 @@ class CuentaTest {
     @Test
     @DisplayName("Probando Saldo de la cuenta!!")
     void testSaldoCuenta(){
-        Cuenta cuenta = new Cuenta("Andres", new BigDecimal("1000.12345"));
         assertEquals(1000.12345, cuenta.getSaldo().doubleValue());
         assertNotNull(cuenta.getSaldo());
         assertFalse(cuenta.getSaldo().compareTo(BigDecimal.ZERO) < 0);
@@ -36,7 +56,6 @@ class CuentaTest {
     @Test
     @DisplayName("Probando referencia de la cuenta!!")
     void testReferenciaCuenta() {
-        Cuenta cuenta = new Cuenta("Andres", new BigDecimal("1000.12345"));
         Cuenta cuenta2 = new Cuenta("Andres", new BigDecimal("1000.12345"));
         //assertNotEquals(cuenta2,cuenta);
         assertEquals(cuenta2,cuenta);
@@ -44,7 +63,6 @@ class CuentaTest {
 
     @Test
     void debitoCuenta() {
-        Cuenta cuenta = new Cuenta("Andres", new BigDecimal("1000.12345"));
         cuenta.debito(new BigDecimal(100));
         assertNotNull(cuenta.getSaldo());
         assertEquals(900, cuenta.getSaldo().intValue());
@@ -53,7 +71,6 @@ class CuentaTest {
 
     @Test
     void creditoCuenta() {
-        Cuenta cuenta = new Cuenta("Andres", new BigDecimal("1000.12345"));
         cuenta.credito(new BigDecimal(100));
         assertNotNull(cuenta.getSaldo());
         assertEquals(1100, cuenta.getSaldo().intValue());
@@ -85,9 +102,9 @@ class CuentaTest {
     }
 
     @Test
-    @Disabled
+    //@Disabled
     void testRelacionBancoCuenta() {
-        fail();
+        //fail();
         Cuenta cuenta1 = new Cuenta("Felipe", new BigDecimal("2500"));
         Cuenta cuenta2 = new Cuenta("William", new BigDecimal("2500"));
 
@@ -130,6 +147,60 @@ class CuentaTest {
                 () -> {assertEquals("Felipe", banco.getCuentas().stream().filter(c -> c.getPersona().equals("Felipe")).findFirst().get().getPersona());},
                 () -> {assertTrue( banco.getCuentas().stream().anyMatch(c -> c.getPersona().equals("William")));}
         );
+    }
+
+    @Test
+    @EnabledOnOs(OS.WINDOWS)
+    void testSoloWindows() {
+    }
+
+    @Test
+    @EnabledOnOs({OS.LINUX, OS.MAC})
+    void testSoloLinuxMac() {
+    }
+
+    @Test
+    @DisabledOnOs(OS.WINDOWS)
+    void testNoWindows() {
+    }
+
+    @Test
+    @DisabledOnOs({OS.LINUX, OS.MAC})
+    void testNoLinuxMac() {
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_8)
+    void testSoloJdk8() {
+    }
+
+    @Test
+    @EnabledOnJre(JRE.JAVA_17)
+    void testSoloJdk17() {
+    }
+
+    @Test
+    void imprimirSystemProperties(){
+        Properties properties = System.getProperties();
+        properties.forEach((k, v) -> System.out.println(k + ":" + v));
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "java.version", matches =  ".*17.*")
+    void testJavaVersion(){
 
     }
+
+    @Test
+    @DisabledIfSystemProperty(named = "os.arch", matches =  ".*32.*")
+    void testSolo64(){
+
+    }
+
+    @Test
+    @EnabledIfSystemProperty(named = "os.arch", matches =  ".*32.*")
+    void testNo64(){
+
+    }
+
 }
